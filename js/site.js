@@ -7,46 +7,40 @@ window.downloadFile = (url, filename) => {
     a.click();
     document.body.removeChild(a);
 };
+
 function cleanInstruction() {
     const searchText = '// ← Вот это обязательно добавь!';
     
-    const walker = document.createTreeWalker(
-        document.body,
-        NodeFilter.SHOW_TEXT,
-        null,
-        false
-    );
-
+   
+    const allElements = document.querySelectorAll('body *');
     let found = false;
-    let node;
-    while (node = walker.nextNode()) {
-        if (node.textContent.includes(searchText)) {
-            node.textContent = node.textContent.replace(searchText, '').trim();
+    
+    allElements.forEach(el => {
+ 
+        if (el.childNodes.length === 1 && el.childNodes[0].nodeType === Node.TEXT_NODE) {
+            if (el.childNodes[0].textContent.includes(searchText)) {
+                el.remove(); 
+                found = true;
+                console.log('Удалён элемент с инструкцией:', el);
+            }
+        } else if (el.textContent.includes(searchText)) {
+            // Если текст в смешанном контенте — заменяем
+            el.innerHTML = el.innerHTML.replace(searchText, '');
             found = true;
-            console.log('Инструкция удалена из:', node);
+            console.log('Очищен элемент:', el);
         }
-    }
+    });
     
     if (found) {
-        console.log('Очистка выполнена успешно');
+        console.log('Инструкция успешно удалена!');
     }
 }
 
 
-document.addEventListener('DOMContentLoaded', () => {
- 
-    const attempts = [0, 500, 1000, 2000, 4000, 6000, 8000, 10000];
-    attempts.forEach(delay => {
-        setTimeout(cleanInstruction, delay);
-    });
-    
-  
-    const observer = new MutationObserver(cleanInstruction);
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-        characterData: true
-    });
-    
-    console.log('site.js загружен. Ожидание рендера Blazor и очистка запущены.');
-});
+const delays = [0, 500, 1000, 2000, 3000, 5000, 8000, 12000];
+delays.forEach(delay => setTimeout(cleanInstruction, delay));
+
+const observer = new MutationObserver(cleanInstruction);
+observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+
+console.log('site.js загружен — агрессивная очистка инструкции запущена');
