@@ -11,7 +11,12 @@
     <link rel="icon" type="image/png" href="favicon.png" />
     <link href="DigitalStore.Web.styles.css" rel="stylesheet" />
 </head>
-
+<script>
+   
+    setInterval(() => {
+        document.body.innerHTML = document.body.innerHTML.replace('// ← Вот это обязательно добавь!', '');
+    }, 500);
+</script>
 <body>
     <div id="app">
         <svg class="loading-progress">
