@@ -6,16 +6,19 @@ window.downloadFile = (url, filename) => {
     a.click();
     document.body.removeChild(a);
 };
-
 document.addEventListener('DOMContentLoaded', () => {
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             mutation.addedNodes.forEach((node) => {
-                if (node.textContent?.includes('Вот это обязательно добавь')) {
-                    node.textContent = node.textContent.replace('// ← Вот это обязательно добавь!', '');
+                if (node.nodeType === Node.TEXT_NODE || node.nodeType === Node.ELEMENT_NODE) {
+                    const text = node.textContent || '';
+                    if (text.includes('Вот это обязательно добавь')) {
+                        console.log('Нашёл узел:', node, 'Текст:', text);
+                        node.textContent = text.replace('// ← Вот это обязательно добавь!', '');
+                    }
                 }
             });
         });
     });
-    observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
 });
