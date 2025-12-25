@@ -6,19 +6,47 @@ window.downloadFile = (url, filename) => {
     a.click();
     document.body.removeChild(a);
 };
-document.addEventListener('DOMContentLoaded', () => {
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            mutation.addedNodes.forEach((node) => {
-                if (node.nodeType === Node.TEXT_NODE || node.nodeType === Node.ELEMENT_NODE) {
-                    const text = node.textContent || '';
-                    if (text.includes('Вот это обязательно добавь')) {
-                        console.log('Нашёл узел:', node, 'Текст:', text);
-                        node.textContent = text.replace('// ← Вот это обязательно добавь!', '');
-                    }
-                }
-            });
-        });
-    });
-    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+
+function cleanInstruction() {
+    const searchText = '// ← Вот это обязательно добавь!';
+    
+    const walker = document.createTreeWalker(
+        document.body,
+        NodeFilter.SHOW_TEXT,
+        null,
+        false
+    );
+
+    let node;
+    while (node = walker.nextNode()) {
+        if (node.textContent.includes(searchText)) {
+            node.textContent = node.textContent
+                .replace(searchText, '')
+                .trim();
+    
+            if (node.textContent === '') {
+                node.parentNode.removeChild(node);
+            }
+        }
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', cleanInstruction);
+} else {
+    cleanInstruction();
+}
+
+setTimeout(cleanInstruction, 100);
+setTimeout(cleanInstruction, 300);
+setTimeout(cleanInstruction, 800);
+setTimeout(cleanInstruction, 1500);
+
+const observer = new MutationObserver(cleanInstruction);
+observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    characterData: true
 });
+
+console.log('site.js загружен. Очистка инструкции запущена.');
